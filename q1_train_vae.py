@@ -80,8 +80,13 @@ def loss_function(recon_x, x, mu, logvar):
     # kl = kl_gaussian_gaussian_analytic(mu_q=?, logvar_q=?, mu_p=?, logvar_p=?).sum()
     # recon_loss = (?).sum()
     # return recon_loss + kl
-    raise notImplementedError("Implement the loss function using your functions from q1_solution.py")
+    # KL divergence: KL between the approximate posterior q(z|x) and the prior p(z)
+    kl = kl_gaussian_gaussian_analytic(mu_q=mu, logvar_q=logvar, mu_p=torch.zeros_like(mu), logvar_p=torch.zeros_like(logvar)).sum()
+    # Reconstruction loss: Using log-likelihood for normal distribution
+    recon_loss = log_likelihood_normal(mu=recon_x, logvar=logvar, z=x).sum()
 
+    # Total loss: Reconstruction loss + KL divergence
+    return recon_loss + kl
 def train(epoch):
     model.train()
     train_loss = 0
