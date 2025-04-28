@@ -83,7 +83,9 @@ def loss_function(recon_x, x, mu, logvar):
     # KL divergence: KL between the approximate posterior q(z|x) and the prior p(z)
     kl = kl_gaussian_gaussian_analytic(mu_q=mu, logvar_q=logvar, mu_p=torch.zeros_like(mu), logvar_p=torch.zeros_like(logvar)).sum()
     # Reconstruction loss: Using log-likelihood for normal distribution
-    recon_loss = log_likelihood_normal(mu=recon_x, logvar=logvar, z=x).sum()
+    # recon_loss = log_likelihood_normal(mu=recon_x, logvar=logvar, z=x).sum()
+    recon_loss = log_likelihood_bernoulli(mu=recon_x, target=x).sum()
+
 
     # Total loss: Reconstruction loss + KL divergence
     return recon_loss + kl
