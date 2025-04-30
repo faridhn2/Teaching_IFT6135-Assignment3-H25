@@ -144,6 +144,6 @@ if __name__ == "__main__":
     plt.xlabel('Loss')
     plt.title('Q1 Train Test Loss')
     plt.legend()
-    plt.save_fig("q1_loss.png",dpi=300)
+    plt.savefig("q1_loss.png",dpi=300)
    
     torch.save(model, 'model.pt')
