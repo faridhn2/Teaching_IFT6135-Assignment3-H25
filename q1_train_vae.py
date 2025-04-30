@@ -147,3 +147,4 @@ if __name__ == "__main__":
     plt.savefig("q1_loss.png",dpi=300)
    
     torch.save(model, 'model.pt')
+    torch.save(model.state_dict(), 'vae_state_dict.pt')
