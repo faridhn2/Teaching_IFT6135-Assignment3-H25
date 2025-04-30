@@ -44,9 +44,10 @@ def log_likelihood_normal(mu, logvar, z):
     mu = mu.view(batch_size, -1)
     logvar = logvar.view(batch_size, -1)
     z = z.view(batch_size, -1)
-    logvar = torch.clamp(logvar, min=-10, max=10)  # Ensure numerical stability
-    ll_normal = -0.5 * (math.log(2 * math.pi) + logvar + ((z - mu) ** 2) / logvar.exp())
-    ll_normal = ll_normal.sum(dim=1)
+    var = torch.exp(logvar)
+    log_prob = -0.5 * (logvar + math.log(2 * math.pi) + ((z - mu) ** 2) / var)
+    ll_normal = torch.sum(log_prob, dim=1) 
+
     return ll_normal
 
 def log_mean_exp(y):
@@ -61,8 +62,9 @@ def log_mean_exp(y):
     # init
     batch_size = y.size(0)
     sample_size = y.size(1)
-    y_max, _ = torch.max(y, dim=1, keepdim=True)
-    lme = y_max + torch.log(torch.mean(torch.exp(y - y_max), dim=1))
+    a_i = torch.max(y, dim=1, keepdim=True)[0]  # shape: (batch_size, 1)
+    lme = torch.log(torch.mean(torch.exp(y - a_i), dim=1)) + a_i.squeeze(1)
+
     return lme 
 
 
@@ -88,9 +90,13 @@ def kl_gaussian_gaussian_analytic(mu_q, logvar_q, mu_p, logvar_p):
     var_q = torch.exp(logvar_q)
     var_p = torch.exp(logvar_p)
 
-    kl_gg = 0.5 * (logvar_p - logvar_q + (var_q / var_p) + ((mu_q - mu_p) ** 2) / var_p - 1)
+    kl = 0.5 * (
+        logvar_p - logvar_q +
+        (var_q + (mu_q - mu_p) ** 2) / var_p -
+        1
+    )
 
-    kl_gg = kl_gg.sum(dim=1)
+    kl_gg = torch.sum(kl, dim=1) 
 
     return kl_gg
 
@@ -117,14 +123,20 @@ def kl_gaussian_gaussian_mc(mu_q, logvar_q, mu_p, logvar_p, num_samples=1):
     logvar_p = logvar_p.view(batch_size, -1).unsqueeze(1).expand(batch_size, num_samples, input_size)
 
     std_q = torch.exp(0.5 * logvar_q)
-    std_p = torch.exp(0.5 * logvar_p)
+    eps = torch.randn_like(std_q)
+    z_samples = mu_q + std_q * eps  
 
-    eps = torch.randn_like(std_q)  # Noise sampled from standard normal
-    z_sample = mu_q + std_q * eps  # Reparameterization trick
+    
+    var_q = torch.exp(logvar_q)
+    ll_q = -0.5 * (logvar_q + math.log(2 * math.pi) + ((z_samples - mu_q) ** 2) / var_q)
+    ll_q = torch.sum(ll_q, dim=2)
 
-    log_qz = -0.5 * ((z_sample - mu_q) ** 2 / std_q ** 2 + logvar_q + math.log(2 * math.pi))
-    log_pz = -0.5 * ((z_sample - mu_p) ** 2 / std_p ** 2 + logvar_p + math.log(2 * math.pi))
+    
+    var_p = torch.exp(logvar_p)
+    ll_p = -0.5 * (logvar_p + math.log(2 * math.pi) + ((z_samples - mu_p) ** 2) / var_p)
+    ll_p = torch.sum(ll_p, dim=2)
 
-    kl_mc = (log_qz - log_pz).sum(dim=2).mean(dim=1)
+    # KL ≈ E_q[log q - log p]
+    kl_mc = torch.mean(ll_q - ll_p, dim=1)
 
     return kl_mc
