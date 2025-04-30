@@ -168,11 +168,10 @@ class Trainer:
         plt.close(fig)
         
         
-    def generate_intermediate_samples(self, model, n_samples=4, img_size=32, steps_to_show=[0,999], n_steps=None, set_seed=False):
+    def generate_intermediate_samples(self, n_samples=4, img_size=32, steps_to_show=[0,999], n_steps=None, set_seed=False):
         """
         Generate multiple images and return intermediate steps of the diffusion process
         Args:
-            model: The trained diffusion model
             n_samples: Number of images to generate
             img_size: Size of the images (assumes square images)
             every_n_steps: Capture intermediate result every n steps
