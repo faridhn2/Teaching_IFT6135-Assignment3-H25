@@ -115,9 +115,22 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
+def test(epoch):
+    model.eval()
+    test_loss = 0
+    with torch.no_grad():
+        for i, (data, _) in enumerate(test_loader):
+            data = data.to(device)
+            recon_batch, mu, logvar = model(data)
+            loss = loss_function(recon_batch, data, mu, logvar)
+            test_loss += loss.item()
+
+    test_loss /= len(test_loader.dataset)
+    print('====> Validation set loss: {:.4f}'.format(test_loss))
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
+        test(epoch) 
 
     torch.save(model, 'model.pt')
