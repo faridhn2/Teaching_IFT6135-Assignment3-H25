@@ -131,7 +131,7 @@ def test(epoch):
 
     test_loss /= len(test_loader.dataset)
     print('====> Validation set loss: {:.4f}'.format(test_loss))
-    testing_loss.append([epoch,train_loss])
+    testing_loss.append([epoch,test_loss ])
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
