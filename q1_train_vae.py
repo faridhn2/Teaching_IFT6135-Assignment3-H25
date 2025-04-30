@@ -118,7 +118,7 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-    training_loss.append([epoch,train_loss])
+    training_loss.append([epoch,train_loss / len(train_loader.dataset)])
 def test(epoch):
     model.eval()
     test_loss = 0
