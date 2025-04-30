@@ -139,7 +139,7 @@ if __name__ == "__main__":
     testing_loss = np.array(testing_loss)
     training_loss = np.array(training_loss)
     plt.plot(training_loss[:,0],training_loss[:,1],c='b',label='train')
-    plt.plot(testing_loss[:,0],testing_loss[:,1],c='b',label='test')
+    plt.plot(testing_loss[:,0],testing_loss[:,1],c='r',label='test')
     plt.xlabel('Epoch')
     plt.xlabel('Loss')
     plt.title('Q1 Train Test Loss')
