@@ -74,7 +74,8 @@ class CFGDiffusion():
     ### REVERSE SAMPLING
     def mu_p_theta(self, z_lambda_t: torch.Tensor, x: torch.Tensor, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
         #TODO: Write function that returns mean of the forward process transition distribution according to (4)
-        eps_theta = self.eps_model(z_lambda_t, lambda_t, x)
+        # eps_theta = self.eps_model(z_lambda_t, lambda_t, x)
+        eps_theta = self.eps_model(z_lambda_t, x)
         scale = self.sigma_q_x(lambda_t, lambda_t_prim) ** 2
         mu = z_lambda_t + scale * eps_theta
         return mu
@@ -111,7 +112,8 @@ class CFGDiffusion():
         lambda_t = self.get_lambda(t)
         z_lambda = self.q_sample(x0, lambda_t, noise)
     
-        eps_pred = self.eps_model(z_lambda, lambda_t, x0) 
+        # eps_pred = self.eps_model(z_lambda, lambda_t, x0)
+        eps_pred = self.eps_model(z_lambda, x0) 
         return torch.mean((noise - eps_pred) ** 2)
 
 
