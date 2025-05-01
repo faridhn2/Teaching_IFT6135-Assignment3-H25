@@ -162,7 +162,11 @@ class Trainer:
                 x_t = x_t / alpha
     
                 
-                noise = torch.randn_like(z_t) if t > 0 else torch.zeros_like(z_t)
+                if t_tensor.min().item() == 0:
+                    noise = torch.zeros_like(z_t)
+                else:
+                    noise = torch.randn_like(z_t)
+
                 z_t = x_t + sigma * noise
                 if self.args.nb_save is not None and t_ in saving_steps:
                     print(f"Showing/saving samples from epoch {self.current_epoch} with labels: {labels.tolist()}")
