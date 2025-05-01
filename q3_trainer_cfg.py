@@ -156,8 +156,8 @@ class Trainer:
                     
                 #TODO: Get x_t then sample z_t from the reverse process according to 4. and 5. in Algo 2.
                 
-                alpha = self.diffusion.alpha_lambda(t_tensor.float().view(-1, 1, 1, 1))
-                sigma = self.diffusion.sigma_lambda(t_tensor.float().view(-1, 1, 1, 1))
+                alpha = self.diffusion.alpha_lambda(t.float().view(-1, 1, 1, 1))
+                sigma = self.diffusion.sigma_lambda(t.float().view(-1, 1, 1, 1))
                 x_t = z_t - sigma * eps_guided
                 x_t = x_t / alpha
     
