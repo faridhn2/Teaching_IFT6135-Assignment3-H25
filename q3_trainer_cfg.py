@@ -162,7 +162,7 @@ class Trainer:
                 x_t = x_t / alpha
     
                 
-                if t_tensor.min().item() == 0:
+                if t.min().item() == 0:
                     noise = torch.zeros_like(z_t)
                 else:
                     noise = torch.randn_like(z_t)
