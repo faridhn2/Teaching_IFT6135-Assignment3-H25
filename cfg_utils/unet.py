@@ -99,9 +99,14 @@ class Down(nn.Module):
 
     def forward(self, x, labels=None):
         x = self.maxpool_conv(x)
+        # if labels is not None:
+        #     emb = self.emb_layer(labels)[:, :, None, None].repeat(1, 1, x.shape[-2], x.shape[-1])
+        #     x += emb
         if labels is not None:
-            emb = self.emb_layer(labels)[:, :, None, None].repeat(1, 1, x.shape[-2], x.shape[-1])
-            x += emb
+            emb = self.emb_layer(labels)[:, :, None, None]
+            emb = emb.expand(-1, -1, x.shape[2], x.shape[3])
+            x = x + emb
+
         #emb = self.emb_layer(t)[:, :, None, None].repeat(1, 1, x.shape[-2], x.shape[-1])
         return x #+ emb
 
