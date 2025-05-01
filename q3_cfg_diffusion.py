@@ -88,7 +88,7 @@ class CFGDiffusion():
         # Note that x_t correspond to x_theta(z_lambda_t)
         if set_seed:
             torch.manual_seed(42)
-        x_t = z_lambda_t - self.sigma_lambda(lambda_t) * self.eps_model(z_lambda_t, y)
+        x_t = z_lambda_t - self.sigma_lambda(lambda_t) * self.eps_model(z_lambda_t, x_t)
         x_t = x_t / self.alpha_lambda(lambda_t)
     
         mu = self.mu_p_theta(z_lambda_t, x_t, lambda_t, lambda_t_prim)
