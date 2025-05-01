@@ -201,6 +201,7 @@ class UNet_conditional(UNet):
 
     def forward(self, x, y=None):
         if y is not None:
+            y = y.long()
             y = self.label_emb(y)
 
         return self.unet_forwad(x, y)
