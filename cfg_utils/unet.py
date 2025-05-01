@@ -199,12 +199,9 @@ class UNet_conditional(UNet):
         if num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, c_emb_dim)
 
-    # def forward(self, x, y=None):
-    #     if y is not None:
-    #         y = self.label_emb(y)
-
-    #     return self.unet_forwad(x, y)
-    def forward(self, x, t, y=None):
+    def forward(self, x, y=None):
         if y is not None:
             y = self.label_emb(y)
-        return self.unet_forwad(x, t, y)
+
+        return self.unet_forwad(x, y)
+    
