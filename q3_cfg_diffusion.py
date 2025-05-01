@@ -78,6 +78,7 @@ class CFGDiffusion():
     def mu_p_theta(self, z_lambda_t: torch.Tensor, x: torch.Tensor, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
         if x is not None:
             x = x.long()  
+            x = torch.clamp(x, 0, 9)
         eps_theta = self.eps_model(z_lambda_t, x)
         scale = self.sigma_q_x(lambda_t, lambda_t_prim) ** 2
         mu = z_lambda_t + scale * eps_theta
