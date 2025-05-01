@@ -154,8 +154,10 @@ class Trainer:
                 lambda_t_prim = self.diffusion.get_lambda(t + 1)
                 
                 #TODO: Add linear interpolation between unconditional and conditional preidiction according to 3 in Algo. 2 using cfg_scale
-                eps_uncond = self.ema_model(z_t, lambda_t, None)
-                eps_cond = self.ema_model(z_t, lambda_t, labels)
+                # eps_uncond = self.ema_model(z_t, lambda_t, None)
+                # eps_cond = self.ema_model(z_t, lambda_t, labels)
+                eps_uncond = self.ema_model(z_t, None)
+                eps_cond = self.ema_model(z_t, labels)
                 # eps_uncond = self.eps_model(torch.cat([z_t, lambda_t], dim=1), y=None)
                 # eps_cond = self.eps_model(torch.cat([z_t, lambda_t], dim=1), y=labels)
                 eps_guided = eps_uncond + cfg_scale * (eps_cond - eps_uncond)
