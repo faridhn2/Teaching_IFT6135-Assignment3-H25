@@ -137,7 +137,7 @@ class Trainer:
             
             if labels == None:
                 labels = torch.randint(0, 9, (self.args.n_samples,), device=self.args.device)
-                labels = labels.to(device).long()
+                # labels = labels.to(device).long()
 
                 
             if self.args.nb_save is not None:
