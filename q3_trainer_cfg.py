@@ -137,8 +137,6 @@ class Trainer:
             
             if labels == None:
                 labels = torch.randint(0, 9, (self.args.n_samples,), device=self.args.device)
-                # labels = labels.to(device).long()
-
                 
             if self.args.nb_save is not None:
                 saving_steps = [self.args["n_steps"] - 1]
@@ -150,22 +148,14 @@ class Trainer:
                 t = torch.full((self.args.n_samples,), t, device=z_t.device, dtype=torch.long)
                 
                 #TODO: Get lambda and lambda prim based on t 
-                lambda_t = self.diffusion.get_lambda(t)
-                lambda_t_prim = self.diffusion.get_lambda(t + 1)
+                raise NotImplementedError
                 
                 #TODO: Add linear interpolation between unconditional and conditional preidiction according to 3 in Algo. 2 using cfg_scale
-                # eps_uncond = self.ema_model(z_t, lambda_t, None)
-                # eps_cond = self.ema_model(z_t, lambda_t, labels)
-                eps_uncond = self.ema_model(z_t, None)
-                eps_cond = self.ema_model(z_t, labels)
-                # eps_uncond = self.eps_model(torch.cat([z_t, lambda_t], dim=1), y=None)
-                # eps_cond = self.eps_model(torch.cat([z_t, lambda_t], dim=1), y=labels)
-                eps_guided = eps_uncond + cfg_scale * (eps_cond - eps_uncond)
+                raise NotImplementedError
                     
                 #TODO: Get x_t then sample z_t from the reverse process according to 4. and 5. in Algo 2.
-                x_t = z_t - self.diffusion.sigma_lambda(lambda_t) * eps_guided
-                x_t = x_t / self.diffusion.alpha_lambda(lambda_t)    
-                z_t = self.diffusion.p_sample(z_t, lambda_t, lambda_t_prim, x_t)
+                raise NotImplementedError
+
                 if self.args.nb_save is not None and t_ in saving_steps:
                     print(f"Showing/saving samples from epoch {self.current_epoch} with labels: {labels.tolist()}")
                     show_save(
