@@ -127,7 +127,7 @@ class Trainer:
             if self.args.nb_save is not None:
                 saving_steps = [self.args["n_steps"] - 1]
             # Remove noise for $T$ steps
-            for t_ in tqdm(range(n_steps)):
+            for t_ in tqdm(reversed(range(n_steps))):
                 t = torch.full((x.size(0),), t_, device=self.args.device, dtype=torch.long)
                 x = self.diffusion.p_sample(x, t)
                 if self.args.nb_save is not None and t_ in saving_steps:
