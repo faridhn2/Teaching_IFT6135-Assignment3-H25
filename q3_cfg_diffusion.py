@@ -61,12 +61,22 @@ class CFGDiffusion():
         var = 1.0 - (alpha_t ** 2) / (alpha_t_prim ** 2)
         return var.sqrt()
     
-    def sigma_q_x(self, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
-        #TODO: Write function that returns variance of the forward process transition distribution q(•|z_l, x) according to (3)
-        sigma_l = self.sigma_lambda(lambda_t)
-        sigma_q_ = self.sigma_q(lambda_t, lambda_t_prim)
-        var = (sigma_l ** 2) / (sigma_q_ ** 2)
-        return var.sqrt()
+    def sigma_q_x(self, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor) -> torch.Tensor:
+        """
+        Compute the standard deviation of the forward process q(z_lambda | z_lambda_prim)
+        based on the formula: sigma^2_{lambda|lambda'} = (1 - exp(lambda - lambda')) * sigma^2_lambda
+        """
+        # Ensure shapes are broadcastable
+        lambda_diff = lambda_t - lambda_t_prim
+
+        # Compute sigma^2_lambda = 1 / (1 + exp(lambda))
+        sigma2_lambda = 1.0 / (1.0 + torch.exp(lambda_t))
+
+        # Apply the forward process variance formula
+        sigma2 = (1.0 - torch.exp(lambda_diff)) * sigma2_lambda
+
+        # Return standard deviation
+        return torch.sqrt(sigma2.clamp(min=1e-20)) 
 
     ### REVERSE SAMPLING
     # def mu_p_theta(self, z_lambda_t: torch.Tensor, x: torch.Tensor, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
