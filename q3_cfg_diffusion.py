@@ -39,7 +39,7 @@ class CFGDiffusion():
     
     def alpha_lambda(self, lambda_t: torch.Tensor): 
         #TODO: Write function that returns Alpha(lambda_t) for a specific time t according to (1)
-        var = 1.0 / (1.0 + torch.exp(-2.0 * lambda_t))
+        var = 1.0 / (1.0 + torch.exp(-1.0 * lambda_t))
         return var.sqrt()
     
     def sigma_lambda(self, lambda_t: torch.Tensor): 
