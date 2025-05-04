@@ -74,10 +74,12 @@ class DenoiseDiffusion():
         )
         if noise is None:
             noise = torch.randn_like(x0)
+        
         xt = self.q_sample(x0, t, noise)
-        eps_pred = self.eps_model(xt, t)
-    
-        return torch.mean((noise - eps_pred) ** 2)
+        eps_theta = self.eps_model(xt, t)
+        loss = ((noise - eps_theta)**2).sum(dim).mean()
+
+        return loss
 
 
         

@@ -37,7 +37,7 @@ class CFGDiffusion():
         
         b = torch.arctan(torch.exp(-lambda_max / 2))
         a = torch.arctan(torch.exp(-lambda_min / 2)) - b
-        
+
         return - 2 * torch.log(torch.tan(a * t + b)).reshape(-1, 1, 1, 1)
 
         
@@ -122,12 +122,13 @@ class CFGDiffusion():
         )
         if noise is None:
             noise = torch.randn_like(x0)
+        
         lambda_t = self.get_lambda(t)
-        z_lambda = self.q_sample(x0, lambda_t, noise)
-
-        eps_pred = self.eps_model(z_lambda, labels)
-
-        return F.mse_loss(eps_pred, noise)
+        z_lambda_t = self.q_sample(x0, lambda_t, noise)
+        #TODO: compute loss
+        eps_theta = self.eps_model(z_lambda_t, labels)
+        loss = ((noise - eps_theta)**2).sum(dim).mean()
+        return loss
 
 
 

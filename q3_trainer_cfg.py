@@ -180,6 +180,8 @@ class Trainer:
             self.eps_model.train()
         return x_t
 
+
+    
     def save_model(self):
         torch.save({
                 'epoch': self.current_epoch,
