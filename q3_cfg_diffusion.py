@@ -34,8 +34,10 @@ class CFGDiffusion():
         t = t / self.n_steps
         lambda_min = torch.tensor(self.lambda_min).expand_as(t).to(args.device)
         lambda_max = torch.tensor(self.lambda_max).expand_as(t).to(args.device)
-        a = torch.arctan(torch.exp(-lambda_min / 2)) - b
+        
         b = torch.arctan(torch.exp(-lambda_max / 2))
+        a = torch.arctan(torch.exp(-lambda_min / 2)) - b
+        
         return - 2 * torch.log(torch.tan(a * t + b)).reshape(-1, 1, 1, 1)
 
         
