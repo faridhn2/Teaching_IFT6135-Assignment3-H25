@@ -31,9 +31,12 @@ class CFGDiffusion():
     
     def get_lambda(self, t: torch.Tensor): 
         # TODO: Write function that returns lambda_t for a specific time t. Do not forget that in the paper, lambda is built using u in [0,1]
-        u = t.float() / self.n_steps
-        lambda_t = self.lambda_min + (self.lambda_max - self.lambda_min) * u
-        return lambda_t.view(-1, 1, 1, 1)
+        t = t / self.n_steps
+        lambda_min = torch.tensor(self.lambda_min).expand_as(t).to(args.device)
+        lambda_max = torch.tensor(self.lambda_max).expand_as(t).to(args.device)
+        a = torch.arctan(torch.exp(-lambda_min / 2)) - b
+        b = torch.arctan(torch.exp(-lambda_max / 2))
+        return - 2 * torch.log(torch.tan(a * t + b)).reshape(-1, 1, 1, 1)
 
         
     
@@ -78,20 +81,14 @@ class CFGDiffusion():
         # Return standard deviation
         return torch.sqrt(sigma2.clamp(min=1e-20)) 
 
-    ### REVERSE SAMPLING
-    # def mu_p_theta(self, z_lambda_t: torch.Tensor, x: torch.Tensor, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
-    #     #TODO: Write function that returns mean of the forward process transition distribution according to (4)
-    #     eps_theta = self.eps_model(z_lambda_t, x)
-    #     scale = self.sigma_q_x(lambda_t, lambda_t_prim) ** 2
-    #     mu = z_lambda_t + scale * eps_theta
-    #     return mu
+    
     def mu_p_theta(self, z_lambda_t: torch.Tensor, x: torch.Tensor, lambda_t: torch.Tensor, lambda_t_prim: torch.Tensor):
-        if x is not None:
-            x = x.long()  
-            x = torch.clamp(x, 0, 9)
-        eps_theta = self.eps_model(z_lambda_t, x)
-        scale = self.sigma_q_x(lambda_t, lambda_t_prim) ** 2
-        mu = z_lambda_t + scale * eps_theta
+        alpha_lambda = self.alpha_lambda(lambda_t)
+        alpha_lambda_prim = self.alpha_lambda(lambda_t_prim)
+        e_l_ratio = self.get_exp_ratio(lambda_t,lambda_t_prim)
+        z_lambda_t = e_l_ratio * alpha_lambda_prim/alpha_lambda * z_lambda_t
+        x_new = (1 - e_l_ratio) * alpha_lambda_prim * x
+        mu = z_lambda_t + x_new
         return mu
 
 
@@ -107,16 +104,10 @@ class CFGDiffusion():
         # Note that x_t correspond to x_theta(z_lambda_t)
         if set_seed:
             torch.manual_seed(42)
-        if x_t is not None:
-            x_t = x_t.long()
-        x_t = z_lambda_t - self.sigma_lambda(lambda_t) * self.eps_model(z_lambda_t, x_t)
-        x_t = x_t / self.alpha_lambda(lambda_t)
-    
-        mu = self.mu_p_theta(z_lambda_t, x_t, lambda_t, lambda_t_prim)
-        var = self.var_p_theta(lambda_t, lambda_t_prim)
-        noise = torch.randn_like(z_lambda_t)
-    
-        return mu + torch.sqrt(var) * noise
+        mu_theta = self.mu_p_theta(z_lambda_t, x_t, lambda_t, lambda_t_prim)
+        var_theta = self.var_p_theta(lambda_t, lambda_t_prim)
+        noise = torch.randn(z_lambda_t.shape, device=z_lambda_t.device)
+        return mu_theta + noise * var_theta.sqrt()
 
     ### LOSS
     def loss(self, x0: torch.Tensor, labels: torch.Tensor, noise: Optional[torch.Tensor] = None, set_seed=False):
